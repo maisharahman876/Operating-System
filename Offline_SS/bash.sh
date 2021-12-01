@@ -16,6 +16,8 @@ files=()
 i=0
 read -p "Enter Directory: " dir
 read -p "Enter Source File: " file
+curr_dir="$(pwd)"/
+echo "$curr_dir"
 while read line;
 do 
 	arr+=($line)
@@ -28,9 +30,19 @@ for i in ${!files[@]}; do
 	fileext=${filename##*.}
 	if [[ "$filename" != "$fileext" ]]
 	then
-		
-		echo "$fileext" 
-		echo "$filename"
+		j=0
+		for k in ${!arr[@]}; do
+			ex="${arr[$k]}"
+			if [[ "$ex" = "$fileext" ]];
+			then
+				j='expr $j+1'
+			fi
+		done
+
+		if [[ "$j" = 0 ]];
+		then
+			echo "$filename"
+		fi
 
 	fi
 done
