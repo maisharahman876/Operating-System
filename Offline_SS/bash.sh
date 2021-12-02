@@ -3,7 +3,7 @@ all_file(){
 for path in "$1"/*; do
 	if [ -d "$path" ]
 	then
-		for dfile in "$path"/; do
+		for dfile in "$path"; do
 			all_file "$dfile"
 		done
 	else
@@ -17,7 +17,7 @@ i=0
 read -p "Enter Directory: " dir
 read -p "Enter Source File: " file
 curr_dir="$(pwd)"/
-echo "$curr_dir"
+mkdir -p output_dir
 while read line;
 do 
 	arr+=($line)
@@ -41,8 +41,15 @@ for i in ${!files[@]}; do
 
 		if [[ "$j" = 0 ]];
 		then
-			echo "$filename"
+			mkdir -p output_dir/"$fileext"
+			cp "$path" output_dir/"$fileext"
+			touch -a output_dir/"$fileext"/desc_"$fileext".txt
+			echo "$path" >>output_dir/"$fileext"/desc_"$fileext".txt
 		fi
-
+	else
+		mkdir -p output_dir/others
+		cp "$path" output_dir/others
+		touch -a output_dir/others/desc_others.txt
+		echo "$path" >>output_dir/others/desc_others.txt
 	fi
 done
