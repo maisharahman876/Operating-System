@@ -1,5 +1,6 @@
 #!/bin/bash
 all_file(){
+IFS=$''
 for path in "$1"/*; do
 	if [ -d "$path" ]
 	then
@@ -28,6 +29,7 @@ do
 	#echo $line
 done < $file
 all_file "$dir"
+IFS=$''
 for i in ${!files[@]}; do
 	path="${files[$i]}"
 	filename=$(basename -- "$path")

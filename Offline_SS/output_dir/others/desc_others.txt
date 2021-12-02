@@ -1,4 +1,5 @@
 working_dir/abc2
+working_dir/a
 working_dir/dir3/subdir6/abc1
 working_dir/abc2
 working_dir/dir3/subdir6/abc1
