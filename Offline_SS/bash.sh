@@ -17,18 +17,33 @@ arr=()
 files=()
 i=0
 ignored=0
+curr=0
 read -p "Enter Directory: " dir
 read -p "Enter Source File: " file
-curr_dir="$(pwd)"/
-mkdir -p output_dir
-touch output.csv
-echo file_type,no_of_files>> output.csv
+while [[ -z "$file" ]]; do
+	echo "Please Provide an input file."
+	read -p "Enter Source File: " file
+done
+#curr_dir="$(pwd)"/
+curr_dir=.
 while read line;
 do 
 	arr+=($line)
 	#echo $line
 done < $file
+if [[ -z "$dir" ]];
+then 
+	all_file "$curr_dir"
+	curr=$((curr+1))
+else 
 all_file "$dir"
+fi
+
+mkdir -p output_dir
+touch output.csv
+echo file_type,no_of_files>> output.csv
+
+
 IFS=$''
 for i in ${!files[@]}; do
 	path="${files[$i]}"
@@ -53,6 +68,10 @@ for i in ${!files[@]}; do
 			mkdir -p output_dir/"$fileext"
 			cp "$path" output_dir/"$fileext"
 			touch -a output_dir/"$fileext"/desc_"$fileext".txt
+			if [[ "$curr" = 1 ]];
+			then
+			path=`echo $path | cut -c 3- `
+			fi
 			echo "$path" >>output_dir/"$fileext"/desc_"$fileext".txt
 			
 		else
@@ -62,6 +81,10 @@ for i in ${!files[@]}; do
 		mkdir -p output_dir/others
 		cp "$path" output_dir/others
 		touch -a output_dir/others/desc_others.txt
+		if [[ "$curr" = 1 ]];
+			then
+			path=`echo $path | cut -c 3- `
+			fi
 		echo "$path" >>output_dir/others/desc_others.txt
 	fi
 done
