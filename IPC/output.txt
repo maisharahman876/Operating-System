@@ -1,0 +1,16 @@
+Passenger 1 has arrived at the airport at time 1
+Passenger 1 has started self-check in at kiosk 1 at time 1
+Passenger 2 has arrived at the airport at time 3
+Passenger 3(VIP) has arrived at the airport at time 6
+Passenger 3(VIP) has started self-check in at kiosk 2 at time 6
+Passenger 4 has arrived at the airport at time 7
+Passenger 5(VIP) has arrived at the airport at time 8
+Passenger 1 has finished check in at kiosk 1 at time 9
+Passenger 1 has started waiting for security check in belt 2 at time 9
+Passenger 1 has started the security check in belt 2 at time 9
+Passenger 2 has started self-check in at kiosk 1 at time 9
+Passenger 6(VIP) has arrived at the airport at time 13
+Passenger 3(VIP) has finished check in at kiosk 2 at time 14
+Passenger 3(VIP) has started waiting for VIP channel at time 14
+Passenger 3(VIP) has started moving in VIP channel at time 14
+Passenger 5(VIP) has started self-check in at kiosk 2 at time 14

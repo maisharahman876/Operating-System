@@ -7,7 +7,7 @@
 using namespace std;
 
 int n,kiosks,belts,per_belt,kiosk_time,security_time,boarding_time,vip_time;
-int vips,losts;
+int vips,losts,vips2;
 int kiosk_count=1;
 sem_t *sem;
 pthread_mutex_t *mtx_k;
@@ -122,6 +122,7 @@ void * airport(void * arg)
 	{
 		end=time(&end);
 		cout<<"Passenger "<<i+1<<s<<" has started waiting for VIP channel at time "<<end-start+1<<endl;
+		vips2++;
 		pthread_mutex_lock(&left_m);
 		vips++;
 		if(vips==1)
@@ -139,6 +140,7 @@ void * airport(void * arg)
 		cout<<"Passenger "<<i+1<<s<<" has crossed VIP channel at time "<<end-start+1<<endl;
 		
 		pthread_mutex_lock(&left_m);
+		vips2--;
 		vips--;
 		if(vips==0)
 		{
@@ -149,12 +151,52 @@ void * airport(void * arg)
 	}
 
 	//boarding
+	
+	if(i%5==3||i%7==4)
+	{
 	end=time(&end);
 	cout<<"Passenger "<<i+1<<s<<" has started waiting to be boarded at time "<<end-start+1<<endl;
+
+	pthread_mutex_lock(&boarding);
+	cout<<"Passenger "<<i+1<<s<<" has lost his boarding pass."<<endl;
+	pthread_mutex_unlock(&boarding);
+
+	//
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started waiting to the right side of VIP channel at time "<<end-start+1<<endl;
+
+	pthread_mutex_lock(&right_m);
+	losts++;
+	if(losts==1)
+		pthread_mutex_lock(&left_m);
+	pthread_mutex_unlock(&right_m);
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started moving in the opposite direction of VIP channel at time "<<end-start+1<<endl;
+
+	sleep(vip_time);
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has crossed VIP channel on the opposite direction at time "<<end-start+1<<endl;
+
+	pthread_mutex_lock(&right_m);
+	losts--;
+	if(vips2!=0)
+	pthread_mutex_unlock(&left_m);
+	pthread_mutex_unlock(&right_m);
+
 	
+		
+	}
+	else
+	{
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started waiting to be boarded at time "<<end-start+1<<endl;
+
 	pthread_mutex_lock(&boarding);
 	end=time(&end);
 	cout<<"Passenger "<<i+1<<s<<" has started boarding the plane at time "<<end-start+1<<endl;
+
 
 	sleep(boarding_time);
 
@@ -163,7 +205,7 @@ void * airport(void * arg)
 
 	pthread_mutex_unlock(&boarding);
 
-
+	}
 
 }
 int main(int argc,char *argv[]){
@@ -173,6 +215,7 @@ int main(int argc,char *argv[]){
   	file.open(argv[1]);
 	file>>kiosks>>belts>>per_belt;
 	file>>kiosk_time>>security_time>>boarding_time>>vip_time;
+	freopen("output.txt", "w", stdout);
 
 	mtx_k=new pthread_mutex_t[kiosks];
 	sem=new sem_t[belts];
@@ -190,7 +233,7 @@ int main(int argc,char *argv[]){
 	//n=100;
 	int i=0;
 	n=1000;
-	vips=0,losts=0;
+	vips=0,losts=0,vips2=0;
 	start=time(&start);
 	//char* mi="meo";
 
