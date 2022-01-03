@@ -8,7 +8,7 @@ using namespace std;
 
 int n,kiosks,belts,per_belt,kiosk_time,security_time,boarding_time,vip_time;
 int kiosk_count=1;
-//sem_t k;
+sem_t *sem;
 pthread_mutex_t *mtx_k;
 
 std::default_random_engine generator;
@@ -97,7 +97,27 @@ void * airport(void * arg)
 	//pthread_mutex_unlock(&mtx);
 	//sem_post(&k);
 
+	if(s=="")
+	{
+		int b=rand()%belts+1;
+		end=time(&end);
+		cout<<"Passenger "<<i+1<<s<<"  has started waiting for security check in belt "<<b<<" at time "<<end-start+1<<endl;
+		sem_wait(&sem[b-1]);
 
+		end=time(&end);
+		cout<<"Passenger "<<i+1<<s<<"  has started the security check in belt "<<b<<" at time "<<end-start+1<<endl;
+
+		sleep(security_time);
+
+		end=time(&end);
+		cout<<"Passenger "<<i+1<<s<<"   has crossed the security check in belt "<<b<<" at time "<<end-start+1<<endl;
+		
+		sem_post(&sem[b-1]);
+	}
+	else
+	{
+
+	}
 
 }
 int main(int argc,char *argv[]){
@@ -109,9 +129,13 @@ int main(int argc,char *argv[]){
 	file>>kiosk_time>>security_time>>boarding_time>>vip_time;
 
 	mtx_k=new pthread_mutex_t[kiosks];
-	//sem_init(&k,0,kiosks);
+	sem=new sem_t[belts];
+
+	
 	for(int m=0;m<kiosks;m++)
 		pthread_mutex_init(&mtx_k[m],NULL);
+	for(int m=0;m<belts;m++)
+		sem_init(&sem[m],0,per_belt);
 
 	//cout<<kiosks<<endl<<belts<<endl<<per_belt;
 	passengers=new passenger*[n];
