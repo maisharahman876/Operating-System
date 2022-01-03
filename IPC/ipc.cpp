@@ -7,9 +7,13 @@
 using namespace std;
 
 int n,kiosks,belts,per_belt,kiosk_time,security_time,boarding_time,vip_time;
+int vips,losts;
 int kiosk_count=1;
 sem_t *sem;
 pthread_mutex_t *mtx_k;
+pthread_mutex_t left_m;
+pthread_mutex_t right_m;
+pthread_mutex_t boarding;
 
 std::default_random_engine generator;
 
@@ -101,23 +105,65 @@ void * airport(void * arg)
 	{
 		int b=rand()%belts+1;
 		end=time(&end);
-		cout<<"Passenger "<<i+1<<s<<"  has started waiting for security check in belt "<<b<<" at time "<<end-start+1<<endl;
+		cout<<"Passenger "<<i+1<<s<<" has started waiting for security check in belt "<<b<<" at time "<<end-start+1<<endl;
 		sem_wait(&sem[b-1]);
 
 		end=time(&end);
-		cout<<"Passenger "<<i+1<<s<<"  has started the security check in belt "<<b<<" at time "<<end-start+1<<endl;
+		cout<<"Passenger "<<i+1<<s<<" has started the security check in belt "<<b<<" at time "<<end-start+1<<endl;
 
 		sleep(security_time);
 
 		end=time(&end);
-		cout<<"Passenger "<<i+1<<s<<"   has crossed the security check in belt "<<b<<" at time "<<end-start+1<<endl;
+		cout<<"Passenger "<<i+1<<s<<" has crossed the security check in belt "<<b<<" at time "<<end-start+1<<endl;
 		
 		sem_post(&sem[b-1]);
 	}
 	else
 	{
+		end=time(&end);
+		cout<<"Passenger "<<i+1<<s<<" has started waiting for VIP channel at time "<<end-start+1<<endl;
+		pthread_mutex_lock(&left_m);
+		vips++;
+		if(vips==1)
+		{
+			pthread_mutex_lock(&right_m);
+		}
+		pthread_mutex_unlock(&left_m);
+
+		end=time(&end);
+		cout<<"Passenger "<<i+1<<s<<" has started moving in VIP channel at time "<<end-start+1<<endl;
+
+		sleep(vip_time);
+
+		end=time(&end);
+		cout<<"Passenger "<<i+1<<s<<" has crossed VIP channel at time "<<end-start+1<<endl;
+		
+		pthread_mutex_lock(&left_m);
+		vips--;
+		if(vips==0)
+		{
+			pthread_mutex_unlock(&right_m);
+		}
+		pthread_mutex_unlock(&left_m);
 
 	}
+
+	//boarding
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started waiting to be boarded at time "<<end-start+1<<endl;
+	
+	pthread_mutex_lock(&boarding);
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started boarding the plane at time "<<end-start+1<<endl;
+
+	sleep(boarding_time);
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has  boarded the plane at time "<<end-start+1<<endl;
+
+	pthread_mutex_unlock(&boarding);
+
+
 
 }
 int main(int argc,char *argv[]){
@@ -130,7 +176,9 @@ int main(int argc,char *argv[]){
 
 	mtx_k=new pthread_mutex_t[kiosks];
 	sem=new sem_t[belts];
-
+	pthread_mutex_init(&boarding,NULL);
+	pthread_mutex_init(&left_m,NULL);
+	pthread_mutex_init(&right_m,NULL);
 	
 	for(int m=0;m<kiosks;m++)
 		pthread_mutex_init(&mtx_k[m],NULL);
@@ -142,8 +190,10 @@ int main(int argc,char *argv[]){
 	//n=100;
 	int i=0;
 	n=1000;
+	vips=0,losts=0;
 	start=time(&start);
 	//char* mi="meo";
+
 	
 	while(1)
 	{
