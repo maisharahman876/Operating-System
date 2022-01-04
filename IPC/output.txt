@@ -1,5 +1,6 @@
 Passenger 1 has arrived at the airport at time 1
-Passenger 1 has started self-check in at kiosk 2 at time 1
-Passenger 2(VIP) has arrived at the airport at time 3
-Passenger 2(VIP) has started self-check in at kiosk 1 at time 3
+Passenger 1 has started self-check in at kiosk 3 at time 1
+Passenger 2 has arrived at the airport at time 3
+Passenger 2 has started self-check in at kiosk 1 at time 3
 Passenger 3(VIP) has arrived at the airport at time 6
+Passenger 3(VIP) has started self-check in at kiosk 2 at time 6

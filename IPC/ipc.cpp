@@ -229,6 +229,7 @@ void * airport(void * arg)
 	pthread_mutex_unlock(&boarding);
 
 	}
+	return 0;
 
 }
 int main(int argc,char *argv[]){
@@ -238,7 +239,7 @@ int main(int argc,char *argv[]){
   	file.open(argv[1]);
 	file>>kiosks>>belts>>per_belt;
 	file>>kiosk_time>>security_time>>boarding_time>>vip_time;
-	//freopen("output.txt", "w", stdout);
+	freopen("output.txt", "w", stdout);
 
 	mtx_k=new pthread_mutex_t[kiosks];
 	sem=new sem_t[belts];
@@ -286,5 +287,6 @@ int main(int argc,char *argv[]){
 		pthread_mutex_destroy(&mtx_k[m]);
 	for(int m=0;m<belts;m++)
 		sem_destroy(&sem[m]);
+	return 0;
 	
 }
