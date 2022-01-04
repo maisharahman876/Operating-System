@@ -13,6 +13,7 @@ sem_t *sem;
 pthread_mutex_t *mtx_k;
 pthread_mutex_t left_m;
 pthread_mutex_t right_m;
+pthread_mutex_t special;
 pthread_mutex_t boarding;
 
 std::default_random_engine generator;
@@ -185,8 +186,68 @@ void * airport(void * arg)
 	pthread_mutex_unlock(&left_m);
 	pthread_mutex_unlock(&right_m);
 
+	//special kiosk
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started waiting for special kiosk at time "<<end-start+1<<endl;
+
+	pthread_mutex_lock(&special);
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started self-check in at special kiosk at time "<<end-start+1<<endl;
+
+	sleep(kiosk_time);
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has finished check in at special kiosk at time "<<end-start+1<<endl;
+	pthread_mutex_unlock(&special);
 	
+	//lost passenger in vip channel
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started waiting for VIP channel at time "<<end-start+1<<endl;
+	vips2++;
+	pthread_mutex_lock(&left_m);
+	vips++;
+	if(vips==1)
+	{
+		pthread_mutex_lock(&right_m);
+	}
+	pthread_mutex_unlock(&left_m);
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started moving in VIP channel at time "<<end-start+1<<endl;
+
+	sleep(vip_time);
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has crossed VIP channel at time "<<end-start+1<<endl;
 		
+	pthread_mutex_lock(&left_m);
+	vips2--;
+	vips--;
+	if(vips==0)
+	{
+		pthread_mutex_unlock(&right_m);
+	}
+	pthread_mutex_unlock(&left_m);
+
+	//lost passenger again on boarding
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started waiting to be boarded at time "<<end-start+1<<endl;
+
+	pthread_mutex_lock(&boarding);
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has started boarding the plane at time "<<end-start+1<<endl;
+
+
+	sleep(boarding_time);
+
+	end=time(&end);
+	cout<<"Passenger "<<i+1<<s<<" has  boarded the plane at time "<<end-start+1<<endl;
+
+	pthread_mutex_unlock(&boarding);
+
 	}
 	else
 	{
@@ -222,6 +283,7 @@ int main(int argc,char *argv[]){
 	pthread_mutex_init(&boarding,NULL);
 	pthread_mutex_init(&left_m,NULL);
 	pthread_mutex_init(&right_m,NULL);
+	pthread_mutex_init(&special,NULL);
 	
 	for(int m=0;m<kiosks;m++)
 		pthread_mutex_init(&mtx_k[m],NULL);
@@ -240,10 +302,12 @@ int main(int argc,char *argv[]){
 	
 	while(1)
 	{
-		int r=rand()%n;
+		int r=rand()%17;
+		int rr=rand()%13;
 		passenger* p=new passenger(i);
 		passengers[i%n]=p;
-		if(i%5==4||i%7==2||i%9==5||i%11==10)
+		//if(i%5==4||i%7==2||i%9==5||i%11==10)
+		if(r>rr)
 			p->make_vip();
 		time_t end=time(&end);
 		int *param = (int *)malloc(1 * sizeof(int));
@@ -255,5 +319,14 @@ int main(int argc,char *argv[]){
 		sleep(sleeptime);
 		i++;
 	}
+	pthread_mutex_destroy(&boarding);
+	pthread_mutex_destroy(&left_m);
+	pthread_mutex_destroy(&right_m);
+	pthread_mutex_destroy(&special);
+	
+	for(int m=0;m<kiosks;m++)
+		pthread_mutex_destroy(&mtx_k[m]);
+	for(int m=0;m<belts;m++)
+		sem_destroy(&sem[m]);
 	
 }
