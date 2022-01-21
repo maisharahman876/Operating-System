@@ -18,7 +18,7 @@ pthread_mutex_t boarding;
 
 std::default_random_engine generator;
 
-std::poisson_distribution<int> distribution(3);
+std::poisson_distribution<int> distribution(2);
 
 time_t start=time(&start);
 
